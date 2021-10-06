@@ -104,7 +104,7 @@ ARG CACHEBUST
 RUN luet install -y \
     toolchain/yip \
     toolchain/luet \
-    utils/installer \
+    utils/installer@0.18 \
     system/cos-setup \
     system/immutable-rootfs \
     system/grub2-config \
