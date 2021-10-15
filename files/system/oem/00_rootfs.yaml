@@ -1,5 +1,14 @@
 name: "Rootfs Layout Settings"
 stages:
+  after-install:
+  - name: "Add Longhorn partition"
+    layout:
+       device:
+         label: "COS_PERSISTENT"
+       add_partitions:
+         - fsLabel: "HARV_LONGHORN"
+           size: 51200  # TODO: Need a way to specify "All the remaining space"
+           filesystem: "ext4"
   rootfs.before:
     - name: "Pull data from provider"
       datasource:
@@ -10,14 +19,14 @@ stages:
       name: "Layout configuration"
       environment_file: /run/cos/cos-layout.env
       environment:
-        VOLUMES: "LABEL=COS_OEM:/oem LABEL=COS_PERSISTENT:/usr/local"
+        VOLUMES: "LABEL=COS_OEM:/oem LABEL=COS_PERSISTENT:/usr/local LABEL=HARV_LONGHORN:/var/lib/longhorn"
         OVERLAY: "tmpfs:25%"
         RW_PATHS: "/var /etc /srv /boot"
         PERSISTENT_STATE_PATHS: >-
           /etc/systemd
           /etc/rancher
           /etc/ssh
-          /etc/iscsi 
+          /etc/iscsi
           /etc/cni
           /home
           /opt
@@ -27,7 +36,6 @@ stages:
           /var/lib/rancher
           /var/lib/kubelet
           /var/lib/wicked
-          /var/lib/longhorn
           /var/lib/cni
           /var/crash
         PERSISTENT_STATE_BIND: "true"
