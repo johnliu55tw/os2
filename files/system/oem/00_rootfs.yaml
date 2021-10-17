@@ -7,7 +7,6 @@ stages:
          label: "COS_PERSISTENT"
        add_partitions:
          - fsLabel: "HARV_LONGHORN"
-           size: 51200  # TODO: Need a way to specify "All the remaining space"
            filesystem: "ext4"
   rootfs.before:
     - name: "Pull data from provider"
