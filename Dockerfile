@@ -1,5 +1,4 @@
-ARG LUET_VERSION=0.16.7
-FROM quay.io/luet/base:$LUET_VERSION AS luet
+FROM quay.io/costoolkit/releases-green:luet-toolchain-0.21.2 AS luet
 
 FROM opensuse/leap:15.3 AS base
 
@@ -127,6 +126,10 @@ RUN curl -o /usr/bin/rancherd -sfL "https://github.com/rancher/rancherd/releases
 
 # Create the folder for journald persistent data
 RUN mkdir -p /var/log/journal
+
+# Create necessary cloudconfig folders so that elemental cli won't show warnings during installation
+RUN mkdir -p /usr/local/cloud-config
+RUN mkdir -p /oem
 
 COPY files/ /
 RUN mkinitrd

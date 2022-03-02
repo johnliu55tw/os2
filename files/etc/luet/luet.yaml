@@ -14,4 +14,4 @@ repositories:
   verify: false
   urls:
   - "quay.io/costoolkit/releases-green"
-
+  reference: 20220302065613-repository.yaml
