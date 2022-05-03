@@ -1,118 +1,56 @@
 FROM quay.io/costoolkit/releases-green:luet-toolchain-0.21.2 AS luet
 
-FROM opensuse/leap:15.3 AS base
+FROM registry.suse.de/suse/containers/suse-microos/5.2/containers/suse/sle-micro-rancher/5.2:latest AS base
 
 # Copy luet from the official images
 COPY --from=luet /usr/bin/luet /usr/bin/luet
 
 ARG ARCH=amd64
 ENV ARCH=${ARCH}
-RUN zypper mr --disable repo-non-oss repo-update-non-oss
+RUN zypper ar --priority=200 http://download.opensuse.org/distribution/leap/15.3/repo/oss repo-oss
 RUN zypper --no-gpg-checks ref
 RUN zypper update -y
 COPY files/etc/luet/luet.yaml /etc/luet/luet.yaml
 
 FROM base as tools
 ENV LUET_NOLOCK=true
-RUN zypper in -y docker squashfs xorriso
 COPY tools /
 RUN luet install -y toolchain/luet-makeiso
 
 FROM base
 ARG RANCHERD_VERSION=v0.0.1-alpha07
+# Some packages are already included in sle-micro-rancher image.
 RUN zypper in -y \
-    bash-completion \
-    conntrack-tools \
-    coreutils \
-    curl \
-    device-mapper \
-    dosfstools \
-    dracut \
-    e2fsprogs \
-    findutils \
-    gawk \
-    gptfdisk \
-    grub2-i386-pc \
-    grub2-x86_64-efi \
-    haveged \
-    iproute2 \
-    iptables \
-    iputils \
-    issue-generator \
-    jq \
-    kernel-default \
-    kernel-firmware-bnx2 \
-    kernel-firmware-i915 \
-    kernel-firmware-intel \
-    kernel-firmware-iwlwifi \
-    kernel-firmware-mellanox \
-    kernel-firmware-network \
-    kernel-firmware-platform \
-    kernel-firmware-realtek \
-    less \
-    lsscsi \
-    lvm2 \
-    mdadm \
-    multipath-tools \
-    nano \
-    nfs-utils \
-    open-iscsi \
-    open-vm-tools \
-    parted \
-    pigz \
-    policycoreutils \
-    procps \
-    python-azure-agent \
-    qemu-guest-agent \
-    rng-tools \
-    rsync \
-    squashfs \
-    strace \
-    systemd \
-    systemd-sysvinit \
-    tar \
-    timezone \
-    vim \
-    which \
-    lshw
-
-# Additional firmware packages
-RUN zypper in -y kernel-firmware-chelsio \
-    kernel-firmware-liquidio \
-    kernel-firmware-mediatek \
-    kernel-firmware-marvell \
-    kernel-firmware-qlogic \
-    kernel-firmware-usb-network \
-    kernel-firmware-amdgpu kernel-firmware-nvidia kernel-firmware-radeon \
-    ucode-intel ucode-amd
-
-# Harvester needs these packages
-RUN zypper in -y apparmor-parser \
-    zstd \
-    nginx
-
-# Additional useful packages
-RUN zypper in -y traceroute \
-    tcpdump \
-    lsof \
-    sysstat \
-    iotop \
-    hdparm \
-    pciutils \
-    ethtool \
-    dmidecode \
-    numactl \
+    apparmor-parser \
+    docker \
+    # iotop \ TODO: Can't install
     ipmitool \
     kdump \
-    supportutils
+    kernel-firmware-amdgpu \
+    kernel-firmware-nvidia \
+    kernel-firmware-radeon \
+    nano \
+    nfs-utils \
+    nginx \
+    numactl \
+    rng-tools \
+    supportutils \
+    tcpdump \
+    traceroute \
+    ucode-amd \
+    ucode-intel \
+    xorriso
 
 RUN zypper clean
+
+# Necessary for luet to run
+RUN mkdir -p /run/lock
 
 ARG CACHEBUST
 RUN luet install -y \
     toolchain/yip \
     toolchain/luet \
-    utils/installer \
+    toolchain/elemental-cli \
     system/cos-setup \
     system/immutable-rootfs \
     system/grub2-config \
