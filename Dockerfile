@@ -19,7 +19,7 @@ COPY tools /
 RUN luet install -y toolchain/luet-makeiso
 
 FROM base
-ARG RANCHERD_VERSION=v0.0.1-alpha07
+ARG RANCHERD_VERSION=v0.0.1-alpha13
 RUN zypper in -y \
     bash-completion \
     conntrack-tools \
